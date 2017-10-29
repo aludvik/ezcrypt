@@ -8,6 +8,9 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "debian/contrib-stretch64"
 
+  # Forward mdbook port
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get install -y -q \
@@ -16,5 +19,10 @@ Vagrant.configure("2") do |config|
       make \
       openssl \
       python3
+    curl https://sh.rustup.rs -sSf | sudo -u vagrant sh -s -- -y
+    if [ ! -e /home/vagrant/.cargo/bin/mdbook ]
+    then
+      sudo -u vagrant /home/vagrant/.cargo/bin/cargo install mdbook
+    fi
   SHELL
 end
