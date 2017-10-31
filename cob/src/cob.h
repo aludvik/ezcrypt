@@ -10,7 +10,7 @@ void * new(const void * class, ...);
 // Release the resources for the given object
 void delete(void * object);
 
-void clone(void*object);
+size_t sizeOf(void * object);
 
 /* To define a concrete class, implement each of the methods declared in the
  * abstract class and then declare a static instance of the abstract class,

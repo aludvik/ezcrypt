@@ -33,3 +33,8 @@ void delete(void * self) {
   }
   free(self);
 }
+
+size_t sizeOf(void * self) {
+  const struct AbstractClass ** class = self;
+  return (*class)->size;
+}
