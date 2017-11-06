@@ -29,11 +29,10 @@ int Herp_foo(void * _self) {
   return self->herp;
 }
 
-static const struct AbstractFoo _Herp = {
-  sizeof(struct Herp),
+CLASS_new(
+  Herp,
+  AbstractFoo,
   Herp_constructor,
   Herp_destructor,
   Herp_foo
-};
-
-const void * Herp = & _Herp;
+)

@@ -22,4 +22,17 @@ struct AbstractClass {
   void * (* destructor) (void * self);
 };
 
+/* Encapsulates the "wiring up" of methods to a struct in order to implement
+ * a given abstract class. NAME should be an identifier for a previously
+ * defined struct, IMPLEMENTS should be an identifier for a previously defined
+ * abstract class, and the remaining arguments should be a list of functions
+ * that implement the methods defined by the abstract class.
+ */
+#define CLASS_new(NAME, IMPLEMENTS, ...) \
+  static const struct IMPLEMENTS _ ## NAME = { \
+    sizeof(struct NAME), \
+    __VA_ARGS__ \
+  }; \
+  const void * NAME = & _ ## NAME;
+
 #endif

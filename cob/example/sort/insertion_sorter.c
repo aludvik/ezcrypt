@@ -37,11 +37,10 @@ void InsertionSorter_sort(const void * _self, int * A, size_t len)
   }
 }
 
-static const struct AbstractSorter _InsertionSorter = {
-  sizeof(struct InsertionSorter),
+MAKE_CLASS(
+  InsertionSorter,
+  AbstractSorter,
   InsertionSorter_constructor,
   InsertionSorter_destructor,
   InsertionSorter_sort
-};
-
-const void * InsertionSorter = &_InsertionSorter;
+)
