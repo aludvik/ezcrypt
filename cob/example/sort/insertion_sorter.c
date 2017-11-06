@@ -37,7 +37,7 @@ void InsertionSorter_sort(const void * _self, int * A, size_t len)
   }
 }
 
-MAKE_CLASS(
+CLASS_new(
   InsertionSorter,
   AbstractSorter,
   InsertionSorter_constructor,
