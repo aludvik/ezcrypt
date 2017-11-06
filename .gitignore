@@ -1,2 +1,4 @@
 .vagrant/
 docs/book/
+cob/example/derp/build/
+cob/example/sort/build/
