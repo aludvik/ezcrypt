@@ -29,11 +29,10 @@ int Derp_foo(void * _self) {
   return self->derp;
 }
 
-static const struct AbstractFoo _Derp = {
-  sizeof(struct Derp),
+CLASS_new(
+  Derp,
+  AbstractFoo,
   Derp_constructor,
   Derp_destructor,
   Derp_foo
-};
-
-const void * Derp = & _Derp;
+)
