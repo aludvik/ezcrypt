@@ -1,5 +1,5 @@
-#ifndef SIMPLER_SORTER_H
-#define SIMPLER_SORTER_H
+#ifndef INSERTION_SORTER_H
+#define INSERTION_SORTER_H
 
 #include <stddef.h>
 
