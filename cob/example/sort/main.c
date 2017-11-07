@@ -1,6 +1,6 @@
 #include "sorter.h"
 #include "insertion_sorter.h"
-
+#include "selection_sorter.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <assert.h>
@@ -14,14 +14,26 @@ void print_array(int * items, size_t len) {
 }
 
 void * create_sorter() {
-  return new(InsertionSorter);
+  char switcher = getchar();
+  switch (switcher) {
+    case 'i':
+      return new(InsertionSorter);
+    case 's':
+      return new(SelectionSorter);
+    default:
+      return NULL;
+  }
 }
 
 int main()
 {
+  printf("enter the first letter of your algorithm\n");
   int items[] = {5, 1, 3, 1, 2, 7};
   print_array(items, 6);
   void * sorter = create_sorter();
+  if (sorter == NULL) {
+    fprintf(stderr, "%s\n", "YOUR SPELLING SUCKS");
+  }
   Sorter_sort(sorter, items, 6);
   printf("Size of sorter: %d\n", sizeOf(sorter));
   print_array(items, 6);
