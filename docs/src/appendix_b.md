@@ -1,13 +1,85 @@
 # Appendix B - C Objects (COB)
 
 This project uses a simplified version of the object-oriented style of C
-described in "Object-Oriented Programming With ANSI-C" by Axel Schreiner.
+described in "Object-Oriented Programming With ANSI-C" by Axel Schreiner. The
+name of the library is C-Object or COB.
 
-## Defining new Interfaces
+The primary motivation for creating COB was to simplify the use of polymorphism
+in C with as little overhead as possible. It provides rudimentary support for
+the following:
 
-### Inheriting Existing Interfaces
+1. Interface definition and implementation
+2. "Inheritance" from existing interface definitions
+3. Polymorphism over implementations of a given interface
+4. Constructors and destructors for objects
+
+## Defining New Interfaces
+
+Interfaces in COB are represented with a `struct` that contains the function
+pointers for the methods defined by the interface and a base interface. For
+example:
+
+    struct ShapeInterface {
+      struct BaseInterface parent;
+      float (* area) (const void * self);
+      void (* draw) (const void * self, void * pen);
+    };
+
+The above defines a generic interface for representing shapes and declares two
+methods that all shapes must implement, `area()` and `draw()`. It also uses
+the `BaseInterface` interface as its parent. **All interfaces are derived from
+some other interface and the derived interface must be the first member of the
+struct.**
+
+The `BaseInterface` struct comes with COB and it defines the requirements for
+all classes defined within COB. Therefore, all classes must, at a minimum,
+implement the `BaseInterface`. It contains three fields, `size`, `constructor`,
+and `destructor`, which are used by the three main COB functions,
+`COB_sizeOf()`, `COB_new()`, and `COB_delete()`, respectively.
+
+### Inheriting from Other Interfaces
+
+It may make sense to build on an existing interface, instead of the
+`BaseInterface`. This works so long as all interfaces in the chain of
+inheritance have their parent interface as the first member. For example, to
+define an interface based on the `ShapeInterface` defined above, do:
+
+    struct QuadrilateralInterface {
+      struct ShapeInterface parent;
+    };
+
+I am not really sure this is a useful thing to do or not though.
 
 ### Defining Selector Functions
+
+In order to do dynamic dispatch over an interface, something has to decide which
+function to call based on the specific object being used at runtime by accessing
+the object's class and following the function pointer for the method being
+called. This needs to be done every time a polymorphic call is made, and so it
+makes sense to encapsulate the behavior in a function. Within COB these are
+called "selector functions".
+
+Selector function declarations should use the following conventions:
+
+1. The function name should be `X_y` where `X` is the name of the interface,
+   less `Interface` and `y` is the name of the function defined by the interface
+   for which dynamic dispatch is desired. For example, `Shape_draw` would be the
+   name of the selector function for the `draw()` method defined by the
+   `ShapeInterface`.
+2. The function should have the same prototype as the interface method, i.e., it
+   should take the same arguments and return the same type.
+
+The actual dynamic dispatch code for all selector functions is nearly identical,
+so the macro `SELECTOR_new` has been defined to simply implementation. To use
+it, pass in the interface identifier, interface method, and the method
+arguments.
+
+The following is a full example for implementing the `Shape_draw` selector
+function:
+
+    void Shape_draw(const void * self, void * pen) {
+      SELECTOR_new(ShapeInterface, draw, self, pen)
+    }
 
 ## Implementing Interfaces
 
