@@ -17,9 +17,9 @@ void * create_sorter() {
   char switcher = getchar();
   switch (switcher) {
     case 'i':
-      return new(InsertionSorter);
+      return COB_new(InsertionSorter);
     case 's':
-      return new(SelectionSorter);
+      return COB_new(SelectionSorter);
     default:
       return NULL;
   }
@@ -35,6 +35,6 @@ int main()
     fprintf(stderr, "%s\n", "YOUR SPELLING SUCKS");
   }
   Sorter_sort(sorter, items, 6);
-  printf("Size of sorter: %d\n", sizeOf(sorter));
+  printf("Size of sorter: %d\n", COB_sizeOf(sorter));
   print_array(items, 6);
 }

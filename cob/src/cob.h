@@ -4,19 +4,17 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-// Instantiate a new instance of the given class
-void * new(const void * class, ...);
+void * COB_new(const void * class, ...);
 
-// Release the resources for the given object
-void delete(void * object);
+void COB_delete(void * object);
 
-size_t sizeOf(void * object);
+size_t COB_sizeOf(void * object);
 
 /* To define a concrete class, implement each of the methods declared in the
  * abstract class and then declare a static instance of the abstract class,
  * mapping all the concrete functions to their appropriate function pointers.
  */
-struct AbstractClass {
+struct BaseInterface {
   size_t size;
   void * (* constructor) (void * self, va_list * args);
   void * (* destructor) (void * self);
@@ -34,5 +32,10 @@ struct AbstractClass {
     __VA_ARGS__ \
   }; \
   const void * NAME = & _ ## NAME;
+
+#define SELECTOR_new(INTERFACE, FUNCTION, ...) \
+  struct INTERFACE * const * ptr = self; \
+  assert(ptr); \
+  return (*ptr)->FUNCTION(__VA_ARGS__);
 
 #endif
