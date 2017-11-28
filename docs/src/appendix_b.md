@@ -83,6 +83,92 @@ function:
 
 ## Implementing Interfaces
 
+Interfaces are implemented by a creating a new "class". A class is a just a
+static instance of the interface struct. This means it contains the size of the
+struct implementing the interface and function pointers to all the methods
+defined by the struct.
+
+### Defining the Class
+
+Practically speaking, implementing an interface requires defining a new struct
+that contains all the data used by the new implementation, defining all the
+methods required by the interface, and then "wiring everything up".
+
+One important detail is that the struct for which the interface will be
+implemented must contain a void pointer as its first member. This will be filled
+in at instantiation with a pointer to the class.
+
+As an example, consider implementing the `ShapeInterface` for a circle. First we
+define the struct that contains all the data for this implementation. In this
+case this is just the required void pointer and a `radius`.
+
+```c
+struct Circle {
+  const void * class;
+  unsigned radius;
+};
+```
+
+Next we need to implement the methods required by the `ShapeInterface` and all
+parent interfaces, in this case `BaseInterface`. These methods are:
+
+```c
+// Methods defined by BaseInterface
+void * (* constructor) (void * self, va_list * args);
+void * (* destructor) (void * self);
+
+// Methods defined by ShapeInterface
+float (* area) (const void * self);
+void (* draw) (const void * self, void * pen);
+```
+
+The actual names of the functions you define to implement these methods is not
+important, so long as the function signatures match. The recommended convention
+is to name them `X_y` where `X` is the name of the struct containing the data
+and `y` is the name of the method being implemented.
+
+For example, the following definitions could be used for the `Circle` class:
+
+```c
+void Circle_constructor(void * self, va_list * args) {
+  ...
+}
+
+void Circle_destructor(void * self) {
+  ...
+}
+
+float Circle_area(const void * self) {
+  ...
+}
+
+void Circle_draw(const void * self, void * pen) {
+  ...
+}
+```
+
+### Upcasting
+
+You will probably have noticed by now that all of the methods take a void
+pointer as their first argument. This is a convention and it enables reusing the
+same function signature across multiple structs. However, the downside is that
+before the data stored in the struct can be accessed, the void pointer has to be
+"upcast" to a pointer to an actual struct.
+
+The simplest form of upcasting is to just assign the void pointer to a pointer
+of the desired struct and hope the function is never called with anything that
+isn't the correct struct. For example:
+
+```c
+float Circle_area(const void * \_self) {
+  const struct Circle * self = \_self;
+}
+```
+
+Obviously this isn't very safe.
+
+### Implementing the Constructor
+
 ## Object Instantiation
 
 Instances of a class are created by calling the `new()` method with the name of
