@@ -31,7 +31,7 @@ int Derp_foo(void * _self) {
 
 CLASS_new(
   Derp,
-  AbstractFoo,
+  FooInterface,
   Derp_constructor,
   Derp_destructor,
   Derp_foo

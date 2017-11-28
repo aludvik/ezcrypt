@@ -39,7 +39,7 @@ void InsertionSorter_sort(const void * _self, int * A, size_t len)
 
 CLASS_new(
   InsertionSorter,
-  AbstractSorter,
+  SorterInterface,
   InsertionSorter_constructor,
   InsertionSorter_destructor,
   InsertionSorter_sort

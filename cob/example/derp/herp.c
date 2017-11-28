@@ -31,7 +31,7 @@ int Herp_foo(void * _self) {
 
 CLASS_new(
   Herp,
-  AbstractFoo,
+  FooInterface,
   Herp_constructor,
   Herp_destructor,
   Herp_foo

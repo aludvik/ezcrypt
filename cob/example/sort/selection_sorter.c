@@ -51,7 +51,7 @@ void SelectionSorter_sort(const void * _self, int * A, size_t len)
 
 CLASS_new(
   SelectionSorter,
-  AbstractSorter,
+  SorterInterface,
   SelectionSorter_constructor,
   SelectionSorter_destructor,
   SelectionSorter_sort

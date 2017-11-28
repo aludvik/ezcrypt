@@ -4,9 +4,9 @@
 #include "../../src/cob.h"
 #include <stddef.h>
 
-struct AbstractSorter {
+struct SorterInterface {
   // Inherit AbstractClass
-  struct AbstractClass parent;
+  struct BaseInterface parent;
   void (* sort) (const void * self, int * items, size_t len);
 };
 

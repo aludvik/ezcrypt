@@ -6,11 +6,11 @@
 #include <stdio.h>
 
 int main() {
-  void * derp = new(Derp);
-  void * herp = new(Herp);
+  void * derp = COB_new(Derp);
+  void * herp = COB_new(Herp);
   printf("%d\n", Foo_foo(derp));
   printf("%d\n", Foo_foo(herp));
-  delete(derp);
-  delete( herp);
+  COB_delete(derp);
+  COB_delete( herp);
   return 0;
 }

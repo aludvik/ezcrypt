@@ -3,8 +3,8 @@
 
 #include "../../src/cob.h"
 
-struct AbstractFoo {
-  struct AbstractClass parent;
+struct FooInterface {
+  struct BaseInterface parent;
   int (* foo) (void * self);
 };
 
