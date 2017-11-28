@@ -70,7 +70,7 @@ Selector function declarations should use the following conventions:
    for which dynamic dispatch is desired. For example, `Shape_draw` would be the
    name of the selector function for the `draw()` method defined by the
    `ShapeInterface`.
-2. The function should have the same prototype as the interface method, i.e., it
+2. The function should have the same signature as the interface method, i.e., it
    should take the same arguments and return the same type.
 
 The actual dynamic dispatch code for all selector functions is nearly identical,
