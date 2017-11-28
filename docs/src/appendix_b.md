@@ -19,11 +19,13 @@ Interfaces in COB are represented with a `struct` that contains the function
 pointers for the methods defined by the interface and a base interface. For
 example:
 
-    struct ShapeInterface {
-      struct BaseInterface parent;
-      float (* area) (const void * self);
-      void (* draw) (const void * self, void * pen);
-    };
+```c
+struct ShapeInterface {
+  struct BaseInterface parent;
+  float (* area) (const void * self);
+  void (* draw) (const void * self, void * pen);
+};
+```
 
 The above defines a generic interface for representing shapes and declares two
 methods that all shapes must implement, `area()` and `draw()`. It also uses
@@ -44,9 +46,11 @@ It may make sense to build on an existing interface, instead of the
 inheritance have their parent interface as the first member. For example, to
 define an interface based on the `ShapeInterface` defined above, do:
 
-    struct QuadrilateralInterface {
-      struct ShapeInterface parent;
-    };
+```c
+struct QuadrilateralInterface {
+  struct ShapeInterface parent;
+};
+```
 
 I am not really sure this is a useful thing to do or not though.
 
@@ -77,9 +81,11 @@ arguments.
 The following is a full example for implementing the `Shape_draw` selector
 function:
 
-    void Shape_draw(const void * self, void * pen) {
-      SELECTOR_new(ShapeInterface, draw, self, pen)
-    }
+```c
+void Shape_draw(const void * self, void * pen) {
+  SELECTOR_new(ShapeInterface, draw, self, pen)
+}
+```
 
 ## Implementing Interfaces
 
@@ -176,7 +182,9 @@ the class to instantiate and a list of arguments to pass to the constructor.
 For example, if Circle is a class and its constructor takes a radius, then the
 following would create a new Circle object with radius 5.
 
-    c = new(Circle, 5);
+```c
+c = COB_new(Circle, 5);
+```
 
 The return type of `new()` is `void *` so that it can be generic. This pointer
 should be upcast sooner rather than later. See "upcasting" below for details.
@@ -185,6 +193,6 @@ All objects that have been created must be destroyed with `delete()` or memory
 will be leaked. Just pass the object pointer to `delete()` and the destructor
 will be called:
 
-    delete(c);
-
-## Upcasting
+```c
+COB_delete(c);
+```
