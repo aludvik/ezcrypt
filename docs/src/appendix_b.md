@@ -19,11 +19,13 @@ Interfaces in COB are represented with a `struct` that contains the function
 pointers for the methods defined by the interface and a base interface. For
 example:
 
-    struct ShapeInterface {
-      struct BaseInterface parent;
-      float (* area) (const void * self);
-      void (* draw) (const void * self, void * pen);
-    };
+```c
+struct ShapeInterface {
+  struct BaseInterface parent;
+  float (* area) (const void * self);
+  void (* draw) (const void * self, void * pen);
+};
+```
 
 The above defines a generic interface for representing shapes and declares two
 methods that all shapes must implement, `area()` and `draw()`. It also uses
@@ -44,9 +46,11 @@ It may make sense to build on an existing interface, instead of the
 inheritance have their parent interface as the first member. For example, to
 define an interface based on the `ShapeInterface` defined above, do:
 
-    struct QuadrilateralInterface {
-      struct ShapeInterface parent;
-    };
+```c
+struct QuadrilateralInterface {
+  struct ShapeInterface parent;
+};
+```
 
 I am not really sure this is a useful thing to do or not though.
 
@@ -66,7 +70,7 @@ Selector function declarations should use the following conventions:
    for which dynamic dispatch is desired. For example, `Shape_draw` would be the
    name of the selector function for the `draw()` method defined by the
    `ShapeInterface`.
-2. The function should have the same prototype as the interface method, i.e., it
+2. The function should have the same signature as the interface method, i.e., it
    should take the same arguments and return the same type.
 
 The actual dynamic dispatch code for all selector functions is nearly identical,
@@ -77,11 +81,99 @@ arguments.
 The following is a full example for implementing the `Shape_draw` selector
 function:
 
-    void Shape_draw(const void * self, void * pen) {
-      SELECTOR_new(ShapeInterface, draw, self, pen)
-    }
+```c
+void Shape_draw(const void * self, void * pen) {
+  SELECTOR_new(ShapeInterface, draw, self, pen)
+}
+```
 
 ## Implementing Interfaces
+
+Interfaces are implemented by a creating a new "class". A class is a just a
+static instance of the interface struct. This means it contains the size of the
+struct implementing the interface and function pointers to all the methods
+defined by the struct.
+
+### Defining the Class
+
+Practically speaking, implementing an interface requires defining a new struct
+that contains all the data used by the new implementation, defining all the
+methods required by the interface, and then "wiring everything up".
+
+One important detail is that the struct for which the interface will be
+implemented must contain a void pointer as its first member. This will be filled
+in at instantiation with a pointer to the class.
+
+As an example, consider implementing the `ShapeInterface` for a circle. First we
+define the struct that contains all the data for this implementation. In this
+case this is just the required void pointer and a `radius`.
+
+```c
+struct Circle {
+  const void * class;
+  unsigned radius;
+};
+```
+
+Next we need to implement the methods required by the `ShapeInterface` and all
+parent interfaces, in this case `BaseInterface`. These methods are:
+
+```c
+// Methods defined by BaseInterface
+void * (* constructor) (void * self, va_list * args);
+void * (* destructor) (void * self);
+
+// Methods defined by ShapeInterface
+float (* area) (const void * self);
+void (* draw) (const void * self, void * pen);
+```
+
+The actual names of the functions you define to implement these methods is not
+important, so long as the function signatures match. The recommended convention
+is to name them `X_y` where `X` is the name of the struct containing the data
+and `y` is the name of the method being implemented.
+
+For example, the following definitions could be used for the `Circle` class:
+
+```c
+void Circle_constructor(void * self, va_list * args) {
+  ...
+}
+
+void Circle_destructor(void * self) {
+  ...
+}
+
+float Circle_area(const void * self) {
+  ...
+}
+
+void Circle_draw(const void * self, void * pen) {
+  ...
+}
+```
+
+### Upcasting
+
+You will probably have noticed by now that all of the methods take a void
+pointer as their first argument. This is a convention and it enables reusing the
+same function signature across multiple structs. However, the downside is that
+before the data stored in the struct can be accessed, the void pointer has to be
+"upcast" to a pointer to an actual struct.
+
+The simplest form of upcasting is to just assign the void pointer to a pointer
+of the desired struct and hope the function is never called with anything that
+isn't the correct struct. For example:
+
+```c
+float Circle_area(const void * \_self) {
+  const struct Circle * self = \_self;
+}
+```
+
+Obviously this isn't very safe.
+
+### Implementing the Constructor
 
 ## Object Instantiation
 
@@ -90,7 +182,9 @@ the class to instantiate and a list of arguments to pass to the constructor.
 For example, if Circle is a class and its constructor takes a radius, then the
 following would create a new Circle object with radius 5.
 
-    c = new(Circle, 5);
+```c
+c = COB_new(Circle, 5);
+```
 
 The return type of `new()` is `void *` so that it can be generic. This pointer
 should be upcast sooner rather than later. See "upcasting" below for details.
@@ -99,6 +193,6 @@ All objects that have been created must be destroyed with `delete()` or memory
 will be leaked. Just pass the object pointer to `delete()` and the destructor
 will be called:
 
-    delete(c);
-
-## Upcasting
+```c
+COB_delete(c);
+```
