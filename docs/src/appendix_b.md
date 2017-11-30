@@ -166,8 +166,8 @@ of the desired struct and hope the function is never called with anything that
 isn't the correct struct. For example:
 
 ```c
-float Circle_area(const void * \_self) {
-  const struct Circle * self = \_self;
+float Circle_area(const void * self_) {
+  const struct Circle * self = self_; assert(self);
 }
 ```
 
@@ -175,24 +175,63 @@ Obviously this isn't very safe.
 
 ### Implementing the Constructor
 
-## Object Instantiation
+The constructor takes an argument of type `va_list *` to allow the signature to
+be generic for all possible number and type of arguments. The downside is that
+the number and type of arguments passed into constructors cannot be enforced at
+compile time. The `va_list *` passed to the constructor will already be
+initialized and will be cleaned up after the constructor returns. Do not call
+`va_start()` or `va_end()`.
 
-Instances of a class are created by calling the `new()` method with the name of
-the class to instantiate and a list of arguments to pass to the constructor.
-For example, if Circle is a class and its constructor takes a radius, then the
-following would create a new Circle object with radius 5.
+Arguments can be retrieved from `va_list *` one at a time by calling
+`va_arg(args, type)`. The following is an example implementation of the Circle
+constructor:
+
+```c
+void Circle_constructor(void * self_, va_list * args) {
+  const struct Circle * self = self_;
+  self->radius = va_arg(* args, unsigned int);
+}
+```
+
+More information on the stdarg library and using `va_arg()` is available here:
+<http://www.cplusplus.com/reference/cstdarg/va_arg/>
+
+## Using Objects
+
+### New and Delete
+
+Instances of a class are created by calling the `COB_new()` method with the name
+of the class to instantiate and a list of arguments to pass to the constructor.
+For example, to create a new Circle object with radius 5, do:
 
 ```c
 c = COB_new(Circle, 5);
 ```
 
-The return type of `new()` is `void *` so that it can be generic. This pointer
-should be upcast sooner rather than later. See "upcasting" below for details.
+The return type of `new()` is `void *` so that it can be generic.
 
-All objects that have been created must be destroyed with `delete()` or memory
-will be leaked. Just pass the object pointer to `delete()` and the destructor
-will be called:
+All objects that have been created must be destroyed with `COB_delete()` or
+memory will be leaked. Pass the object pointer to `COB_delete()` and the
+destructor will be called:
 
 ```c
 COB_delete(c);
+```
+
+### Calling Methods
+
+Methods defined for the class of object can be called by passing the object in
+as the self argument. For example:
+
+```c
+float area = Circle_area(c);
+```
+
+If the exact type of the object is not known, but the interface it implements
+is, a selector function can be used instead. The following uses a selector
+function defined with the `ShapeInterface` to determine the area of an object
+implementing the interface:
+
+```c
+float area = Shape_area(c);
 ```
